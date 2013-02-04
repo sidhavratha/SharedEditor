@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express.createServer();
 
+
 app.configure(function() {
     app.use(express.bodyParser());
     app.use(express.static('./static/'));
@@ -91,5 +92,5 @@ delete sessions[editorId];
 },1000*60*1);
 
 app.listen(8124);
-
+console.log('Starting application');
 console.log('Server running at http://127.0.0.1:8124/');
