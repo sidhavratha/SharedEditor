@@ -71,6 +71,15 @@ res.end('OK');
 app.post('/wait',function(req,res){
 //console.log("Wait request from : "+req.body.editorId);
 var editorId=req.body.editorId;
+
+/*
+res.writeHead(503, { "Content-Type": "text/plain" });
+res.end("Service Unavailable!");
+return;
+*/
+
+
+
 if(!sessions[editorId]){
 res.writeHead(404, { "Content-Type": "text/plain" });
 res.end("Session doesn't exists!");
