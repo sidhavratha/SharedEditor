@@ -1,0 +1,36 @@
+<html>
+<head>
+<title></title>
+<script type="text/javascript" src="jquery.tools.min.js"></script>
+<script type="text/javascript">
+	var editorId = "<%= message %>";
+	var waiter = function(){$.post("wait",{"editorId":editorId},function(data){
+				console.log("In wait recieved text : "+data);
+				$("#content").val(data);
+				waiter();
+			}).fail(function() { alert("error in wait"); });};
+			
+	$(document).ready(function(){
+			//alert("hello");
+			$("#content").keyup(function(){
+				$.post("post",{"editorId":editorId,"text":$(this).val()},function(data){
+					console.log("Recieved response : "+JSON.stringify(data));
+				}).fail(function() { alert("error in post"); });
+				
+				console.log($(this).val()+":keyup");
+			});
+			waiter();
+		}
+	);
+</script>
+</head>
+
+<body>
+<p>
+Id : <%= message %>
+</p>
+<label>Editor identifier : </label><%= message %>
+<br>
+<textarea rows="30" cols="50" id="content"><%= content %></textarea>
+</body>
+</html>
