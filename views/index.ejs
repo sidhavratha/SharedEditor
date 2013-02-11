@@ -6,7 +6,7 @@
 	var editorId = "<%= message %>";
 	var version = "<%= version %>";
 	var mutex=false;
-	function checkAndHoldMutex(cause){console.log("checking mutex "+cause);while(mutex){}mutex=true;console.log("mutex acquired:"+cause);}
+	function checkAndHoldMutex(cause){console.log("checking mutex "+cause);while(mutex){sleep(30);}mutex=true;console.log("mutex acquired:"+cause);}
 	function checkMutex(){return mutex;}
 	function releaseMutex(cause){mutex=false;console.log("mutex released:"+cause);}
 	
