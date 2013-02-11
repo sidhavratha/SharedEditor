@@ -6,28 +6,46 @@
 	var editorId = "<%= message %>";
 	var version = "<%= version %>";
 	var mutex=false;
-	function checkAndHoldMutex(){while(mutex){}mutex=true;}
-	function releaseMutex(){mutex=false;}
+	function checkAndHoldMutex(cause){console.log("checking mutex");while(mutex){}mutex=true;console.log("mutex acquired:"+cause);}
+	function checkMutex(){return mutex;}
+	function releaseMutex(cause){mutex=false;console.log("mutex released:"+cause);}
+	
+	var lastestContent = "";
+	
 	var waiter = function(){$.post("wait",{"editorId":editorId},function(data){
-				checkAndHoldMutex();
+				checkAndHoldMutex("waiter");
 				console.log("In wait recieved text : "+data);
 				data = $.parseJSON(data);
 				if(parseInt(data.version)>parseInt(version)){
 					$("#content").val(data.text);
 				}
-				releaseMutex();
+				releaseMutex("waiter");
 				waiter();
 			}).fail(function(error) { if(error.status===503){waiter();return;}alert("error in wait "); });};
 			
 	$(document).ready(function(){
 			//alert("hello");
+			var timeoutSet = false;
 			$("#content").keyup(function(){
-					checkAndHoldMutex();
-					$.post("post",{"editorId":editorId,"version":version,"text":$(this).val()},function(data){
-						version=($.parseJSON(data))["version"];
-						releaseMutex();
-					}).fail(function(error) { alert("error in post "+error); releaseMutex();});
-					
+					lastestContent = $(this).val();
+					if(checkMutex()){
+						if(!timeoutSet){
+							timeoutSet=true;
+						}
+						return;
+					}else{
+						timeoutSet=true;
+						setTimeout(function(){
+							while(timeoutSet){
+								timeoutSet=false;
+								checkAndHoldMutex("keyup");
+								$.post("post",{"editorId":editorId,"version":version,"text":lastestContent},function(data){
+									version=($.parseJSON(data))["version"];
+									releaseMutex("keyup");
+								}).fail(function(error) { alert("error in post "+error); releaseMutex("keyup");});
+							}
+						},0);
+					}	
 				console.log($(this).val()+":keyup");
 			});
 			waiter();
