@@ -6,7 +6,7 @@
 	var editorId = "<%= message %>";
 	var version = "<%= version %>";
 	var mutex=false;
-	function checkAndHoldMutex(cause){console.log("checking mutex "+cause);while(mutex){sleep(30);}mutex=true;console.log("mutex acquired:"+cause);}
+	function checkAndHoldMutex(cause){console.log("checking mutex "+cause);while(mutex){sleep(700);}mutex=true;console.log("mutex acquired:"+cause);}
 	function checkMutex(){return mutex;}
 	function releaseMutex(cause){mutex=false;console.log("mutex released:"+cause);}
 	
@@ -17,7 +17,7 @@
 				console.log("In wait recieved text : "+data);
 				data = $.parseJSON(data);
 				if(parseInt(data.version)>parseInt(version)){
-					$("#content").val(data.text);
+					$("#content").val(unescape(data.text));
 				}
 				releaseMutex("waiter");
 				waiter();
@@ -25,9 +25,10 @@
 			
 	$(document).ready(function(){
 			//alert("hello");
+			$("#content").val(unescape($("#content").val()));
 			var timeoutSet = false;
 			$("#content").keyup(function(){
-					lastestContent = $(this).val();
+					lastestContent = escape($(this).val());
 					if(checkMutex()){
 						if(!timeoutSet){
 							timeoutSet=true;
