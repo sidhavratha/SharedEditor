@@ -95,7 +95,7 @@ app.post('/post',function(req,res){
 		}
 	},0);
 	
-	},10000);
+	},0);
 });
 
 
