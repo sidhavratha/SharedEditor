@@ -5,22 +5,28 @@
 <script type="text/javascript">
 	var editorId = "<%= message %>";
 	var version = "<%= version %>";
+	var mutex=false;
+	function checkAndHoldMutex(){while(mutex){}mutex=true;}
+	function releaseMutex(){mutex=false;}
 	var waiter = function(){$.post("wait",{"editorId":editorId},function(data){
+				checkAndHoldMutex();
 				console.log("In wait recieved text : "+data);
 				data = $.parseJSON(data);
 				if(parseInt(data.version)>parseInt(version)){
 					$("#content").val(data.text);
 				}
+				releaseMutex();
 				waiter();
 			}).fail(function(error) { if(error.status===503){waiter();return;}alert("error in wait "); });};
 			
 	$(document).ready(function(){
 			//alert("hello");
 			$("#content").keyup(function(){
-				$.post("post",{"editorId":editorId,"version":version,"text":$(this).val()},function(data){
-					version=($.parseJSON(data))["version"];
-				}).fail(function(error) { alert("error in post "+error); });
-				
+					checkAndHoldMutex();
+					$.post("post",{"editorId":editorId,"version":version,"text":$(this).val()},function(data){
+						version=($.parseJSON(data))["version"];
+					}).fail(function(error) { alert("error in post "+error); });
+					releaseMutex();
 				console.log($(this).val()+":keyup");
 			});
 			waiter();
