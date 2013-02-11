@@ -4,17 +4,21 @@
 <script type="text/javascript" src="jquery.tools.min.js"></script>
 <script type="text/javascript">
 	var editorId = "<%= message %>";
+	var version = "<%= version %>";
 	var waiter = function(){$.post("wait",{"editorId":editorId},function(data){
 				console.log("In wait recieved text : "+data);
-				$("#content").val(data);
+				data = $.parseJSON(data);
+				if(parseInt(data.version)>parseInt(version)){
+					$("#content").val(data.text);
+				}
 				waiter();
 			}).fail(function(error) { if(error.status===503){waiter();return;}alert("error in wait "); });};
 			
 	$(document).ready(function(){
 			//alert("hello");
 			$("#content").keyup(function(){
-				$.post("post",{"editorId":editorId,"text":$(this).val()},function(data){
-					console.log("Recieved response : "+JSON.stringify(data));
+				$.post("post",{"editorId":editorId,"version":version,"text":$(this).val()},function(data){
+					version=($.parseJSON(data))["version"];
 				}).fail(function(error) { alert("error in post "+error); });
 				
 				console.log($(this).val()+":keyup");
