@@ -1,7 +1,6 @@
 var express = require('express');
 var app = express.createServer();
 
-
 app.configure(function() {
     app.use(express.bodyParser());
     app.use(express.static('./static/'));
@@ -64,6 +63,9 @@ app.post('/post',function(req,res){
 	//		Put the changes in content and update version number.
 
 	//console.log(req.body.text);
+	setTimeout(function(){
+	
+	
 	var editorId = req.body.editorId;
 	if(!sessions[editorId]){
 		//sessions[editorId]={};
@@ -82,7 +84,7 @@ app.post('/post',function(req,res){
 	sessions[editorId].content=req.body.text;
 	sessions[editorId].startTime=new Date();
 	//console.log(sessions[editorId]);
-
+	
 	setTimeout(function(){
 		while(sessions[editorId].connections.length){
 			(function(connection){
@@ -93,6 +95,7 @@ app.post('/post',function(req,res){
 		}
 	},0);
 	
+	},10000);
 });
 
 
